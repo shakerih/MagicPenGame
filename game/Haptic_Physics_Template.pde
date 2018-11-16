@@ -127,6 +127,14 @@
 //   * Insert physics objects here
 //   */
   
+//  //FBox fb = new FBox(18.0, 1.0);
+//  //fb.setStatic(true);
+//  //fb.setPosition(10, 2);
+//  //fb.setStroke(0);
+//  //fb.setFill(255, 255, 255);
+//  //fb.setDensity(5);
+//  //world.add(fb);
+//  //world.draw();
   
   
 //  /* Setup the Virtual Coupling Contact Rendering Technique */

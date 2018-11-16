@@ -62,6 +62,7 @@ Figure fig1, fig2, fig3;
 Opponent npc;
 Player player;
 FBox shudder;
+FigureManager fManager;
 
 /* setup section *******************************************************************************************************/
 void setup(){
@@ -69,13 +70,12 @@ void setup(){
   
   /* screen size definition */
   size(1000, 800);
-  
-    fig1 = new Figure("gargoyle.png", 50, 50, 44, 65);
-    fig2 = new Figure("gargoyle.png", 350, 130, 44, 65);
-    fig3 = new Figure("gargoyle.png", 250, 400, 44, 65);
+    //fig1 = new Figure("gargoyle.png", 50, 50, 44, 65);
+    //fig2 = new Figure("gargoyle.png", 350, 130, 44, 65);
+    //fig3 = new Figure("gargoyle.png", 250, 400, 44, 65);
     
-    npc = new Opponent("npc.png", 100, 100);
-    player = new Player("player.png", 300, 600);
+    npc = new Opponent("images/npc.png", 100, 100);
+    player = new Player("images/player.png", 300, 600);
     
     shudder = new FBox(10,10);
     shudder.setStatic(true);
@@ -93,7 +93,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, "COM5", 0);
+  haplyBoard          = new Board(this, "COM3", 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   widgetOne.add_analog_sensor("A0");
   widgetOne.add_analog_sensor("A1");
@@ -123,7 +123,6 @@ void setup(){
    */
   
   
-  
   /* Setup the Virtual Coupling Contact Rendering Technique */
   s = new HVirtualCoupling((1)); 
  
@@ -137,7 +136,7 @@ void setup(){
   s.updateCouplingForce  (0.25F, 250000.0F,700.0F,1.0010F); 
   s.h_avatar.setFill(255,0,0,0); 
   s.h_avatar.setStroke(0,0,0,0);
-  s.init(world, edgeTopLeftX+worldWidth/2, edgeTopLeftY+2); 
+  s.init(world, edgeBottomRightX - 2, edgeBottomRightY - 2);
   
   /* World conditions setup */
   world.setGravity((0.0), (300.0)); //1000 cm/(s^2)
@@ -152,6 +151,8 @@ void setup(){
   /* setup framerate speed */
   frameRate(baseFrameRate);
   
+  fManager = new FigureManager(world);
+  fManager.init();
   
   /* setup simulation thread to run at 1kHz */ 
   SimulationThread st = new SimulationThread();
@@ -163,11 +164,8 @@ void setup(){
 
 void draw(){
   background(140, 140, 120);
-  world.draw(); 
-  fig1.render();
-  fig2.render();
-  fig3.render();
-  
+  world.draw();
+  fManager.switchSpells();
   npc.render();
   player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
 
@@ -203,7 +201,7 @@ class SimulationThread implements Runnable{
     world.step(1.0f/1000.0f);
   
     rendering_force = false;
-    println(widgetOne.get_sensor_data()[3]);
+    //println(widgetOne.get_sensor_data()[3]);
   }
 }
 /* end simulation section **********************************************************************************************/
