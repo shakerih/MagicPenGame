@@ -4,7 +4,9 @@ class FigureManager {
   String[] images = {
      "images/gargoyle.png",
      "images/gargoyle2.png",
-     "images/gargoyle3.png"
+     "images/gargoyle3.png",
+     "images/cat.png",
+     "images/mouse.png"
   };
   
   
