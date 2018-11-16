@@ -169,6 +169,8 @@ void draw(){
   npc.render();
   player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
 
+
+
 }
 
 /* simulation section **************************************************************************************************/
@@ -206,11 +208,20 @@ class SimulationThread implements Runnable{
 }
 /* end simulation section **********************************************************************************************/
 void keyPressed() {
+
+  if(keyCode == 32){//if spacebar pressed then shudder
+    println("pressed spacebar");
     float originalPos = s.getAvatarPositionY()-2;
     shudder.setPosition(s.getAvatarPositionX(), s.getAvatarPositionY()-1);
-     shudder.setStatic(false);
+    shudder.setStatic(false);
+
     if(s.getAvatarPositionY() - originalPos > 3){
-     shudder.setPosition(0,0);
-    shudder.setStatic(true);
+      shudder.setPosition(0,0);
+      shudder.setStatic(true);
     }
+  }else if (key == 's'){//enter spell casting mode
+    println("pressed s");
+
+  }
+
 }
