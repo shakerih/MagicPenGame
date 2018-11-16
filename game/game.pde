@@ -93,7 +93,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, "/dev/cu.usbmodem1411", 0);
+  haplyBoard          = new Board(this, "COM3", 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   widgetOne.add_analog_sensor("A0");
   widgetOne.add_analog_sensor("A1");
@@ -164,6 +164,11 @@ void setup(){
 
 void draw(){
   background(140, 140, 120);
+  textSize(38);
+  textAlign(CENTER);
+  text("Magic Paradise", width/2, 60);
+  textSize(20);
+  text("Move magic Pen to sense the magical object and press 's' to go to spell mode to cast a spell.", 500, height-40);
   world.draw();
   fManager.switchSpells();
   npc.render();
@@ -224,4 +229,8 @@ void keyPressed() {
 
   }
 
+}
+
+void draw_instructions() {
+ 
 }
