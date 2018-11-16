@@ -66,7 +66,7 @@ FigureManager fManager;
 
 //pat--> create new spell recognitction object
 SpellRecognition mySpellRec = new SpellRecognition(worldWidth, worldHeight, pixelsPerCentimeter);
-
+boolean inSpellCastingMode = false;
 
 /* setup section *******************************************************************************************************/
 void setup(){
@@ -168,14 +168,15 @@ void setup(){
 
 void draw(){
 
-  // draw this during normal gameplay
-  background(140, 140, 120);
-  world.draw();
-  fManager.switchSpells();
-  npc.render();
-  player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
+      // draw this during normal gameplay
+    background(140, 140, 120);
+    world.draw();
+    fManager.switchSpells();
+    npc.render();
+    player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
 
-  if(false){
+  if(inSpellCastingMode){
+    println("spell grid ");
     //spell recognition code
     mySpellRec.showGrid();// show the  9 x 9 casting grid
     mySpellRec.checkForCollisions(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter, pixelsPerCentimeter/2);//call this to check if theyve hit differnt parts of the 9x9 grid
@@ -185,7 +186,6 @@ void draw(){
         //should move the avatar to the bottom left starting point
     }
   }
-
 }
 
 /* simulation section **************************************************************************************************/
@@ -236,7 +236,16 @@ void keyPressed() {
     }
   }else if (key == 's'){//enter spell casting mode
     println("pressed s");
-
+    if(this.inSpellCastingMode){
+      this.inSpellCastingMode = false;
+    }
+    else{
+      this.inSpellCastingMode = true;
+    }
   }
 
+}
+public void keyReleased()
+{
+    println("Just to let you know a key has been released");
 }
