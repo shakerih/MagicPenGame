@@ -64,6 +64,10 @@ Player player;
 FBox shudder;
 FigureManager fManager;
 
+//pat--> create new spell recognitction object
+SpellRecognition mySpellRec = new SpellRecognition(worldWidth, worldHeight, pixelsPerCentimeter);
+
+
 /* setup section *******************************************************************************************************/
 void setup(){
   /* put setup code here, run once: */
@@ -163,6 +167,8 @@ void setup(){
 
 
 void draw(){
+
+  // draw this during normal gameplay
   background(140, 140, 120);
   textSize(38);
   textAlign(CENTER);
@@ -174,7 +180,16 @@ void draw(){
   npc.render();
   player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
 
-
+  if(false){
+    //spell recognition code
+    mySpellRec.showGrid();// show the  9 x 9 casting grid
+    mySpellRec.checkForCollisions(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter, pixelsPerCentimeter/2);//call this to check if theyve hit differnt parts of the 9x9 grid
+    String mystring = mySpellRec.checkIfSpellCast();//check if a spell has successfully been cast (they hit the corrext cicles on the grid)
+    if(mystring != "none"){
+        println(mystring);
+        //should move the avatar to the bottom left starting point
+    }
+  }
 
 }
 
