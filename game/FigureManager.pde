@@ -23,7 +23,7 @@ class FigureManager {
   };
   
   Timer timer;
-  Figure[] collection;
+  public Figure[] collection;
   FWorld world;
   
   FigureManager(FWorld world) {

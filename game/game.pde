@@ -48,7 +48,7 @@ PVector           pos_ee                              = new PVector(0, 0);
 PVector           f_ee                                = new PVector(0, 0); 
 
 /* World boundaries */
-FWorld            world;
+FWorld            world, world2;
 float             worldWidth                          = 25.0;  
 float             worldHeight                         = 20.0; 
 
@@ -97,7 +97,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, "/dev/cu.usbmodem1411", 0);
+  haplyBoard          = new Board(this, "COM5", 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   widgetOne.add_analog_sensor("A0");
   widgetOne.add_analog_sensor("A1");
@@ -179,16 +179,26 @@ void draw(){
   fManager.switchSpells();
   npc.render();
   player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
+  
 
   if(inSpellCastingMode){
-    println("spell grid ");
     //spell recognition code
+    fill(0,0,0,50);
+    rect(0,0,1000,800);  
     mySpellRec.showGrid();// show the  9 x 9 casting grid
     mySpellRec.checkForCollisions(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter, pixelsPerCentimeter/2);//call this to check if theyve hit differnt parts of the 9x9 grid
     String mystring = mySpellRec.checkIfSpellCast();//check if a spell has successfully been cast (they hit the corrext cicles on the grid)
     if(mystring != "none"){
+      player.spellmode = false;
         println(mystring);
         //should move the avatar to the bottom left starting point
+        mySpellRec.Reset();  
+        this.inSpellCastingMode = false;
+    s.h_avatar.setFill(255,0,0,0);
+      for(int i = 0; i < fManager.collection.length; i++){
+       world.add(fManager.collection[i]);
+      }
+      world.draw();
     }
   }
 }
@@ -240,12 +250,31 @@ void keyPressed() {
       shudder.setStatic(true);
     }
   }else if (key == 's'){//enter spell casting mode
+   ArrayList<FBody> b = world.getBodies();
+      for(int i = 0; i < b.size(); i++)
+       world.remove(b.get(i));
+      println(fManager.collection.length);
+ //  world = new FWorld();
+  s.init(world, edgeBottomRightX - 2, edgeBottomRightY - 2);
+  
     println("pressed s");
     if(this.inSpellCastingMode){
       this.inSpellCastingMode = false;
+      player.spellmode = false;
+    s.h_avatar.setFill(255,0,0,0);
+      for(int i = 0; i < fManager.collection.length; i++){
+       world.add(fManager.collection[i]);
+      }
+      world.draw();
+       println(b);
     }
     else{
+      s.setToolPosition(2, 24);
+      s.setAvatarPosition(2, 24);
       this.inSpellCastingMode = true;
+      player.spellmode = true;
+    s.h_avatar.setFill(255,0,0,255);
+     
     }
   }
 
