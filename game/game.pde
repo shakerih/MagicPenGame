@@ -97,7 +97,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, "/dev/cu.usbmodem1411", 0);
+  haplyBoard          = new Board(this, "COM3", 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   widgetOne.add_analog_sensor("A0");
   widgetOne.add_analog_sensor("A1");
@@ -168,12 +168,26 @@ void setup(){
 
 void draw(){
 
+<<<<<<< HEAD
       // draw this during normal gameplay
     background(140, 140, 120);
     world.draw();
     fManager.switchSpells();
     npc.render();
     player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
+=======
+  // draw this during normal gameplay
+  background(140, 140, 120);
+  textSize(38);
+  textAlign(CENTER);
+  text("Magic Paradise", width/2, 60);
+  textSize(20);
+  text("Move magic Pen to sense the magical object and press 's' to go to spell mode to cast a spell.", 500, height-40);
+  world.draw();
+  fManager.switchSpells();
+  npc.render();
+  player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
+>>>>>>> 4a90c9de1d56f2e42f52b77f3c1fdaa69176e943
 
   if(inSpellCastingMode){
     println("spell grid ");
@@ -245,7 +259,13 @@ void keyPressed() {
   }
 
 }
+<<<<<<< HEAD
 public void keyReleased()
 {
     println("Just to let you know a key has been released");
+=======
+
+void draw_instructions() {
+ 
+>>>>>>> 4a90c9de1d56f2e42f52b77f3c1fdaa69176e943
 }

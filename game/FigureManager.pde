@@ -9,6 +9,18 @@ class FigureManager {
      "images/mouse.png"
   };
   
+  String[] names = {
+    "Ravioli",
+    "Hippogriff",
+    "Niffler",
+    "Coin",
+    "Apple",
+    "Garbage",
+    "Gold",
+    "Gelatin",
+    "Mushrooms",
+    "Croissant"
+  };
   
   Timer timer;
   Figure[] collection;
@@ -26,10 +38,9 @@ class FigureManager {
      float x = random(2, 24);
      float y = random(2, 18);
      String img = images[int(random(images.length))];
-     println(random(10, 50));
+     String name = names[int(random(names.length))];
      boolean spell = int(random(10, 50)) > 25 ? true : false;
-    
-     collection[i] = new Figure(img, x, y, spell);
+     collection[i] = new Figure(name, img, x, y, spell);
      this.world.add(collection[i]);
     }
     
