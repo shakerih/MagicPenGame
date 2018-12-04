@@ -4,6 +4,7 @@
 import processing.serial.*;
 import static java.util.concurrent.TimeUnit.*;
 import java.util.concurrent.*;
+import ddf.minim.*;
 /* end library imports *************************************************************************************************/  
 
 
@@ -11,7 +12,8 @@ import java.util.concurrent.*;
 /* scheduler definition ************************************************************************************************/ 
 private final ScheduledExecutorService scheduler      = Executors.newScheduledThreadPool(1);
 /* end scheduler definition ********************************************************************************************/ 
-
+Minim minim;
+AudioPlayer waterAudio, rockAudio;
 
 
 /* device block definitions ********************************************************************************************/
@@ -63,7 +65,8 @@ Opponent npc;
 Player player;
 FBox shudder;
 FigureManager fManager;
-
+Figure fPlayer;
+float K = 8.99; 
 //pat--> create new spell recognitction object
 SpellRecognition mySpellRec = new SpellRecognition(worldWidth, worldHeight, pixelsPerCentimeter);
 
@@ -78,7 +81,7 @@ void setup(){
     //fig2 = new Figure("gargoyle.png", 350, 130, 44, 65);
     //fig3 = new Figure("gargoyle.png", 250, 400, 44, 65);
     
-    npc = new Opponent("images/npc.png", 100, 100);
+    //npc = new Opponent("images/npc.png", 100, 100);
     player = new Player("images/player.png", 300, 600);
     
     shudder = new FBox(10,10);
@@ -134,7 +137,7 @@ void setup(){
  //                           float   stiffness,
  //                           float   damping,
  //                           float   contact_mass ) 
- //s.setVirtualCouplingStiffness(36250);
+ s.setVirtualCouplingStiffness(36250);
 
   s.h_avatar.setDensity(2); 
   s.updateCouplingForce  (0.25F, 250000.0F,700.0F,1.0010F); 
@@ -157,17 +160,25 @@ void setup(){
   
   fManager = new FigureManager(world);
   fManager.init();
+
   
   /* setup simulation thread to run at 1kHz */ 
   SimulationThread st = new SimulationThread();
   scheduler.scheduleAtFixedRate(st, 1, 1, MILLISECONDS);
+  
+   // for sounds
+  minim = new Minim(this);
+  waterAudio = minim.loadFile("sounds/water.wav");
+  rockAudio = minim.loadFile("sounds/scrapping.wav");
 }
 
 
-
+boolean inRockZone = false;
+float currentPosX;
+float currentPosY;
 
 void draw(){
-
+ 
   // draw this during normal gameplay
   background(140, 140, 120);
   textSize(38);
@@ -175,11 +186,46 @@ void draw(){
   text("Magic Paradise", width/2, 60);
   textSize(20);
   text("Move magic Pen to sense the magical object and press 's' to go to spell mode to cast a spell.", 500, height-40);
-  world.draw();
+  
   fManager.switchSpells();
-  npc.render();
+ // npc.render();
+  
   player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
 
+  world.draw();
+  
+  if (s.getAvatarPositionX() < 11.0) {
+    println("in left half");
+    waterAudio.play();
+    //waterAudio.rewind();
+    if (rockAudio.position() != 0) {
+      rockAudio.rewind();
+    }
+  } else {
+    if (rockAudio.position() == rockAudio.length()) {
+      rockAudio.rewind();
+    }
+    if (inRockZone) {
+      if (currentPosX != s.getAvatarPositionX() || currentPosY != s.getAvatarPositionY()) {
+        rockAudio.play();
+        currentPosX = s.getAvatarPositionX();
+        currentPosY = s.getAvatarPositionY();
+      } else {
+        rockAudio.pause();
+      }
+      
+    } else {
+      currentPosX = s.getAvatarPositionX();
+      currentPosY = s.getAvatarPositionY();
+      inRockZone = true;
+    }
+    print(rockAudio.position());
+    if (waterAudio.position() == waterAudio.length()) {
+      waterAudio.rewind();
+    }
+    println("in right half");
+  }
+  
   if(false){
     //spell recognition code
     mySpellRec.showGrid();// show the  9 x 9 casting grid
@@ -214,8 +260,27 @@ class SimulationThread implements Runnable{
     s.setToolPosition(-pos_ee.x, pos_ee.y); 
     s.updateCouplingForce();
     f_ee.set(-s.getVCforceX(), s.getVCforceY());
-   // f_ee.div(20000); //
     
+    //for(int i = 0; i < 10; i++) {
+    //  f_ee.set((f_ee.x - random(10)), (f_ee.y + random(10)));  
+    //}
+    for (int i = 0; i < fManager.collection.length; i++) {
+      Figure charge = fManager.collection[i];
+      if (charge.spelled) {
+         float dx = s.getAvatarPositionX() - charge.getX();
+         float dy = s.getAvatarPositionY() - charge.getY();
+         float dd = sqrt( dx*dx + dy*dy);
+         float ft = K* charge.q * (-120)/(dd*dd);
+         PVector vector = new PVector(-ft*dx/dd, ft*dy/dd);
+         f_ee.add(vector);
+      }
+    }    
+    
+    f_ee.div(100);
+    //println("coupling force: ", -s.getVCforceX()); 
+    //f_ee.set(-0.001, -0.0001);
+   // f_ee.div(20000); //
+   
     torques.set(widgetOne.set_device_torques(f_ee.array()));
     //println(torques);
     widgetOne.device_write_torques();
@@ -249,3 +314,79 @@ void keyPressed() {
 void draw_instructions() {
  
 }
+
+//ArrayList<PVector> computeEachForce() {
+//    ArrayList<PVector> vectors = new ArrayList<PVector>();   
+  
+//   for(ElectricCharge c : charges){
+//     if (c != current_charge){
+//       float dx = c.x_pos - current_charge.x_pos;
+//       float dy = c.y_pos - current_charge.y_pos;
+//       float dd = sqrt( dx*dx + dy*dy);
+       
+//      // println("dd: ", dd);
+       
+//       float ft = K* current_charge.q * c.q/(dd*dd); // current_charge.q * c.q = qp*qn    
+//       PVector vector = new PVector(ft*dx/dd, ft*dy/dd);
+//       vectors.add(vector);
+//     }
+//   }
+   
+//  return vectors;
+//}
+//ArrayList<PVector> computeForceOn(ElectricCharge selCharge) {
+//    ArrayList<PVector> vectors = new ArrayList<PVector>();   
+  
+//   for(ElectricCharge c : charges){
+//     if (c != selCharge){
+//       float dx = c.x_pos - selCharge.x_pos;
+//       float dy = c.y_pos - selCharge.y_pos;
+//       float dd = sqrt( dx*dx + dy*dy);
+       
+//      // println("dd: ", dd);
+       
+//       float ft = K* selCharge.q * c.q/(dd*dd); // current_charge.q * c.q = qp*qn    
+//       PVector vector = new PVector(ft*dx/dd, ft*dy/dd);
+//       vectors.add(vector);
+//     }
+//   }
+   
+//  return vectors;
+//}
+//float[] computeTotalForce1(ArrayList<PVector> vectors){ //sets f_ee to what it should be
+//  float fx_total = 0;
+//  float fy_total = 0;
+//  float[] forces = new float[2];   
+//  for(PVector v : vectors) {
+//       fx_total += v.x;
+//       fy_total += v.y;
+//       //actualForce = new PVector(fx_total, fy_total);  
+//       actualForce = new PVector(fx_total, fy_total);  
+//           forces[0]=-fx_total/25;
+//           forces[1]=fy_total/25;
+//           //println(abs(-fx_total),abs(fy_total));
+//           if((30<=abs(fx_total)&abs(fx_total)<50)|30<=abs(fy_total)&abs(fy_total)<50) {
+//             forces[0]=0;
+//             forces[1]=0;
+//              //player.setGain(1);
+//           }
+//           else if((50<=abs(fx_total))|50<=abs(fy_total)) {
+//            forces[0]=.571*fx_total/(abs(fx_total));
+//            forces[1]=-.571*fy_total/(abs(fy_total));
+//             forces[0]=0;
+//             forces[1]=0;
+//              //player.setGain(1);
+//           }else{
+//             forces[0]=-fx_total/25;
+//             forces[1]=fy_total/25;
+//             //player.setGain(-10/(fy_total*fy_total+fx_total*fx_total));
+//         }
+     
+//      // forces[0]=(-fx_total/25);
+//      // forces[1]=(fy_total/25);
+       
+//  }
+//  force_vector = new PVector(5*fx_total, 5*fy_total);
+//  //force_vector = new PVector(5*fx_total, 5*fy_total);
+//  return forces;
+//}

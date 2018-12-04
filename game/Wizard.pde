@@ -1,4 +1,4 @@
-class Wizard{
+class Wizard {
   PImage img;
   int x,y;
  Wizard(String img, int x, int y){

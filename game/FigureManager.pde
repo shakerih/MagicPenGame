@@ -25,6 +25,7 @@ class FigureManager {
   Timer timer;
   Figure[] collection;
   FWorld world;
+  Figure player;
   
   FigureManager(FWorld world) {
     this.world = world;
@@ -54,5 +55,17 @@ class FigureManager {
        }
        this.timer.start();
      }
+   }
+   
+   Figure getPlayer() {
+     if (this.player == null) {
+      float x = random(2, 24);
+      float y = random(2, 18);
+      this.player = new Figure("player","images/player.png", x, y, true);
+      this.player.setFill(156);
+      this.world.add(this.player);
+     }
+     return this.player;
+     
    }
 }

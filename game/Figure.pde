@@ -1,25 +1,39 @@
-class Figure extends FBox {
+class Figure extends FCircle {
   
- PImage img;
- int FIG_WIDTH = 10;   // in cm
- int FIG_HEIGHT = 15;  // in cm
- boolean spelled = false;
- String figureName;
+ String figureName;  // name of the figure
+ boolean spelled = false; // whether the figure is spelled
+ PImage img; // image of the figure to show in the game
+ int FIG_WIDTH = 10;   // width of figure in cm
+ int FIG_HEIGHT = 15;  // heigt of figure in cm
+ int RADIUS = 30;
+ int q = 120;
+ int colour;
  
  Figure(String name, String img, float x, float y, boolean spelled){
-   super(3, 2);
+   //super(3,2);
+   super(3);
    this.figureName = name;
    this.img = loadImage(img);
    this.img.resize(44, 44);
    this.attachImage(this.img);
    this.setStroke(5);
-   this.setFill(0);
+   this.setFill(255);
    this.spelled = spelled;
-   println(spelled);
    this.setStatic(true);
    this.setFill(130,130,130);
    this.setPosition(x, y);
-   this.setForce(2,2);
+   
+   if(spelled == true) {
+    //positive:
+    colour = #FF0000;
+    q = 120;
+    } else if(spelled == false) {
+    colour = #FFFFFF;
+    q = 0;}else{
+    //negative:
+    colour = #0070FF;
+    q = -120;
+    }
    
  }
  
