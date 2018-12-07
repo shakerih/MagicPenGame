@@ -25,7 +25,7 @@ class Water {
        if (this.fc % 10 == 0) {
          
          this.lastPosition.set(currentPosition.copy());
-         println("lastPosition:", this.lastPosition);
+         //println("lastPosition:", this.lastPosition);
        }
        fc++;
     }

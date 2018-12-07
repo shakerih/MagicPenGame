@@ -1,6 +1,6 @@
 class FigureManager {
   
-  int FIGURE_COUNT = 10;
+  int FIGURE_COUNT = 9; //hardocde this to 9, don't change!!!!
   int spelledObjectIndex = -1;
   
   String[] images = {
@@ -37,14 +37,105 @@ class FigureManager {
   
   void init() {
     this.timer.start();
-    for(int i = 0; i < FIGURE_COUNT; i++) {
-     float x = random(2, 24);
-     float y = random(2, 18);
-     String img = images[int(random(images.length))];
-     String name = names[int(random(names.length))];
-     collection[i] = new Figure(name, img, x, y, false);
-     this.world.add(collection[i]);
-    }
+    float x_offset = 6.25;
+    float y_offset = 5;
+    int figure_counter = 0;
+
+
+    //set the position of image 1 
+    float x = x_offset;
+    float y = y_offset;
+    //grabs a random name and picture to apply to the objects
+    String img = images[int(random(images.length))];
+    String name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+    //set the position of image 2
+    x = x_offset*2;
+    y = y_offset;
+    //grabs a random name and picture to apply to the objects
+    img = images[int(random(images.length))];
+    name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+     //set the position of image 3
+    x = x_offset*3;
+    y = y_offset;
+    //grabs a random name and picture to apply to the objects
+    img = images[int(random(images.length))];
+    name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+     //set the position of image 4
+    x = x_offset;
+    y = y_offset*2;
+    //grabs a random name and picture to apply to the objects
+    img = images[int(random(images.length))];
+    name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+     //set the position of image 5
+    x = x_offset*2;
+    y = y_offset*2;
+    //grabs a random name and picture to apply to the objects
+    img = images[int(random(images.length))];
+    name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+     //set the position of image 6
+    x = x_offset*3;
+    y = y_offset*2;
+    //grabs a random name and picture to apply to the objects
+    img = images[int(random(images.length))];
+    name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+     //set the position of image 7
+    x = x_offset;
+    y = y_offset*3;
+    //grabs a random name and picture to apply to the objects
+    img = images[int(random(images.length))];
+    name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+     //set the position of image 8
+    x = x_offset*2;
+    y = y_offset*3;
+    //grabs a random name and picture to apply to the objects
+    img = images[int(random(images.length))];
+    name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+     //set the position of image 9
+    x = x_offset*3;
+    y = y_offset*3;
+    //grabs a random name and picture to apply to the objects
+    img = images[int(random(images.length))];
+    name = names[int(random(names.length))];
+    collection[figure_counter] = new Figure(name, img, x, y, false);
+    this.world.add(collection[figure_counter]);
+    figure_counter++;
+
+
+    
+
+
     int k = int(random(0, this.collection.length-1));
     this.collection[k].spelled = true;
     println(this.collection[k].figureName, " is spelled");

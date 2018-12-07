@@ -65,7 +65,6 @@ HVirtualCoupling s;
 Figure fig1, fig2, fig3;
 Opponent npc;
 Player player;
-FBox shudder;
 FigureManager fManager;
 Figure fPlayer;
 float K = 8.99; 
@@ -82,6 +81,17 @@ PVector last_pos_ee = new PVector(0, 0);
 PVector speed = new PVector(0, 0); 
 Water waterDampingSystem;
 
+/*
+toggles for different modalities
+pressing v enables visual
+pressing a enables audio
+pressing h enables haptic
+*/
+boolean enable_visual = false;
+boolean enable_audio = false;
+boolean enable_haptic = false;
+
+
 /* setup section *******************************************************************************************************/
 void setup(){
   /* put setup code here, run once: */
@@ -94,12 +104,7 @@ void setup(){
     
     //npc = new Opponent("images/npc.png", 100, 100);
     player = new Player("images/player.png", 300, 600);
-    
-    shudder = new FBox(10,10);
-    shudder.setStatic(true);
-    shudder.setDensity(8000);
-    shudder.setFriction(8000);
-    shudder.setDrawable(false);
+
 /* device setup */
   
   /**  
@@ -111,7 +116,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, "COM3", 0);
+  haplyBoard          = new Board(this, "/dev/cu.usbmodem1411", 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   widgetOne.add_analog_sensor("A0");
   widgetOne.add_analog_sensor("A1");
@@ -161,8 +166,6 @@ void setup(){
   world.setEdges((edgeTopLeftX), (edgeTopLeftY), (edgeBottomRightX), (edgeBottomRightY)); 
   world.setEdgesRestitution(0.0);
   world.setEdgesFriction(0.0);
-  world.add(shudder);
-  shudder.setPosition(0,0);
   world.draw();
   
   
@@ -199,43 +202,14 @@ void draw(){
   textSize(20);
   text("Move magic Pen to sense the magical object and press 's' to go to spell mode to cast a spell.", 500, height-40);
   
-  //fManager.switchSpells();
+  fManager.switchSpells();
   // npc.render();
   
   player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
 
   world.draw();
   
-  if (s.getAvatarPositionX() < 11.0) {
-    waterAudio.play();
-    if (rockAudio.position() != 0) {
-      rockAudio.rewind();
-    }
-  } else {
-    if (rockAudio.position() == rockAudio.length()) {
-      rockAudio.rewind();
-    }
-    if (inRockZone) {
-      if (currentPosX != s.getAvatarPositionX() || currentPosY != s.getAvatarPositionY()) {
-        rockAudio.play();
-        currentPosX = s.getAvatarPositionX();
-        currentPosY = s.getAvatarPositionY();
-      } else {
-        rockAudio.pause();
-      }
-      
-    } else {
-      currentPosX = s.getAvatarPositionX();
-      currentPosY = s.getAvatarPositionY();
-      inRockZone = true;
-    }
-    
-    print(rockAudio.position());
-    if (waterAudio.position() == waterAudio.length()) {
-      waterAudio.rewind();
-    }
-    println("in right half");
-  }
+
   
   if(false){
     //spell recognition code
@@ -275,17 +249,30 @@ class SimulationThread implements Runnable{
  
     }
     
-    waterDampingSystem.recordLastPosition(pos_ee.copy());
-    
     s.setToolPosition(-pos_ee.x, pos_ee.y); 
     s.updateCouplingForce();
     f_ee.set(-s.getVCforceX(), s.getVCforceY());
+
+    waterDampingSystem.recordLastPosition(pos_ee.copy());
     
-    Figure target = fManager.findNearestSpelledTarget(pos_ee);
+    //always be running this to see if we are near the target
+    Figure target = fManager.findNearestSpelledTarget(pos_ee);//returns null if not within 5 cm to 
+    
+    //check if we are within 5 cm to a magic figure we return that figure
     if (target != null) {
-      PVector dist = new PVector(target.getX() - abs(pos_ee.x), target.getY() - (pos_ee.y));
-      f_ee.x = -60000/dist.x;
-      f_ee.y = 60000/dist.y;
+
+      if(enable_haptic){
+        PVector dist = new PVector(target.getX() - abs(pos_ee.x), target.getY() - (pos_ee.y));
+        f_ee.x = -60000/dist.x;
+        f_ee.y = 60000/dist.y;
+      }
+      if (enable_audio){
+
+      }
+      if (enable_visual){
+        
+      }
+
     }
     
       //PVector dist = waterDampingSystem.checkForCollisions(pos_ee);
@@ -307,19 +294,22 @@ class SimulationThread implements Runnable{
 /* end simulation section **********************************************************************************************/
 void keyPressed() {
 
-  if(keyCode == 32){//if spacebar pressed then shudder
-    println("pressed spacebar");
-    float originalPos = s.getAvatarPositionY()-2;
-    shudder.setPosition(s.getAvatarPositionX(), s.getAvatarPositionY()-1);
-    shudder.setStatic(false);
 
-    if(s.getAvatarPositionY() - originalPos > 3){
-      shudder.setPosition(0,0);
-      shudder.setStatic(true);
-    }
-  }else if (key == 's'){//enter spell casting mode
-    println("pressed s");
+  println(int(key));
+  
+  if (key == 'v'){
+    println(key);
+    enable_visual = true;
 
+  }
+  else if (key == 'a'){
+    println(key);
+    enable_audio = true;
+    
+  }
+  else if (key == 'd'){
+    println(key);
+    enable_haptic = true;
   }
 
 }
