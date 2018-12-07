@@ -13,11 +13,11 @@ import ddf.minim.*;
 private final ScheduledExecutorService scheduler      = Executors.newScheduledThreadPool(1);
 /* end scheduler definition ********************************************************************************************/ 
 
-
+boolean enable_audio, enable_visual, enable_haptic = false;
 Minim minim;
 AudioPlayer waterAudio, rockAudio;
 
-
+PImage water, dirt;
 /* device block definitions ********************************************************************************************/
 Board             haplyBoard;
 Device            widgetOne;
@@ -62,15 +62,9 @@ float             edgeBottomRightX                    = worldWidth;
 float             edgeBottomRightY                    = worldHeight;
 
 HVirtualCoupling s;
-Figure fig1, fig2, fig3;
-Opponent npc;
 Player player;
-FBox shudder;
-FigureManager fManager;
 Figure fPlayer;
 float K = 8.99; 
-//pat--> create new spell recognitction object
-SpellRecognition mySpellRec = new SpellRecognition(worldWidth, worldHeight, pixelsPerCentimeter);
 
 boolean inRockZone = false;
 float currentPosX;
@@ -81,25 +75,21 @@ int fCount = 0;
 PVector last_pos_ee = new PVector(0, 0);
 PVector speed = new PVector(0, 0); 
 Water waterDampingSystem;
-
+HeightMap myHeightMap = new HeightMap(200, 100, 100, 200);
 /* setup section *******************************************************************************************************/
 void setup(){
   /* put setup code here, run once: */
   
   /* screen size definition */
   size(1000, 800);
-    //fig1 = new Figure("gargoyle.png", 50, 50, 44, 65);
-    //fig2 = new Figure("gargoyle.png", 350, 130, 44, 65);
-    //fig3 = new Figure("gargoyle.png", 250, 400, 44, 65);
-    
-    //npc = new Opponent("images/npc.png", 100, 100);
     player = new Player("images/player.png", 300, 600);
     
-    shudder = new FBox(10,10);
-    shudder.setStatic(true);
-    shudder.setDensity(8000);
-    shudder.setFriction(8000);
-    shudder.setDrawable(false);
+    water = loadImage("images/water.png");
+    dirt = loadImage("images/dry.jpg");
+    dirt.resize(500,800);
+    
+    water.resize(500, 800);
+    noStroke();
 /* device setup */
   
   /**  
@@ -111,7 +101,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, "COM3", 0);
+  haplyBoard          = new Board(this, "COM4", 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   widgetOne.add_analog_sensor("A0");
   widgetOne.add_analog_sensor("A1");
@@ -161,16 +151,12 @@ void setup(){
   world.setEdges((edgeTopLeftX), (edgeTopLeftY), (edgeBottomRightX), (edgeBottomRightY)); 
   world.setEdgesRestitution(0.0);
   world.setEdgesFriction(0.0);
-  world.add(shudder);
-  shudder.setPosition(0,0);
+
   world.draw();
   
   
   /* setup framerate speed */
   frameRate(baseFrameRate);
-  
-  fManager = new FigureManager(world);
-  fManager.init();
   
   waterDampingSystem = new Water();
 
@@ -186,32 +172,41 @@ void setup(){
 }
 
 
-
+int fc = 0;
 
 void draw(){
- 
-  // draw this during normal gameplay
-  background(140, 140, 120);
-  //background(bg);
+  if(enable_visual){
+    tint(255, 100);  // Tint blue and set transparency
+    image(water, 0, 0);
+    tint(255, 255);
+    image(dirt, 500, 0);
+    drawWater(); 
+    // draw this during normal gameplay
+   // background(140, 140, 120);
+    //background(bg);
+    
+    rect(0, 500, 1000, 300);
+  }else{
+   background(255); 
+  }
   textSize(38);
   textAlign(CENTER);
   text("Magic Paradise", width/2, 60);
   textSize(20);
   text("Move magic Pen to sense the magical object and press 's' to go to spell mode to cast a spell.", 500, height-40);
-  
-  //fManager.switchSpells();
-  // npc.render();
+
   
   player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
 
   world.draw();
-  
-  if (s.getAvatarPositionX() < 11.0) {
+  if(enable_audio){
+  if (s.getAvatarPositionX() < 11.0 && s.getAvatarPositionY() < 500/pixelsPerCentimeter) {
+
     waterAudio.play();
     if (rockAudio.position() != 0) {
       rockAudio.rewind();
     }
-  } else {
+  } else if(s.getAvatarPositionY() < 500/pixelsPerCentimeter){
     if (rockAudio.position() == rockAudio.length()) {
       rockAudio.rewind();
     }
@@ -236,16 +231,6 @@ void draw(){
     }
     println("in right half");
   }
-  
-  if(false){
-    //spell recognition code
-    mySpellRec.showGrid();// show the  9 x 9 casting grid
-    mySpellRec.checkForCollisions(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter, pixelsPerCentimeter/2);//call this to check if theyve hit differnt parts of the 9x9 grid
-    String mystring = mySpellRec.checkIfSpellCast();//check if a spell has successfully been cast (they hit the corrext cicles on the grid)
-    if(mystring != "none"){
-        println(mystring);
-        //should move the avatar to the bottom left starting point
-    }
   }
 
 }
@@ -276,22 +261,33 @@ class SimulationThread implements Runnable{
     }
     
     waterDampingSystem.recordLastPosition(pos_ee.copy());
-    
-    s.setToolPosition(-pos_ee.x, pos_ee.y); 
-    s.updateCouplingForce();
-    f_ee.set(-s.getVCforceX(), s.getVCforceY());
-    
-    Figure target = fManager.findNearestSpelledTarget(pos_ee);
-    if (target != null) {
-      PVector dist = new PVector(target.getX() - abs(pos_ee.x), target.getY() - (pos_ee.y));
-      f_ee.x = -60000/dist.x;
-      f_ee.y = 60000/dist.y;
-    }
-    
-      //PVector dist = waterDampingSystem.checkForCollisions(pos_ee);
-      //f_ee.x = dist.x * 3000;
-      //f_ee.y = dist.y * 3000;
+    s.setToolPosition(-pos_ee.x, pos_ee.y);
+   s.updateCouplingForce();
+   f_ee.set(-s.getVCforceX(), s.getVCforceY());
+   
+   
+speed.set(PVector.sub(pos_ee,last_pos_ee).mult(pixelsPerCentimeter));
+    if(s.getAvatarPositionX() < 11.0 && s.getAvatarPositionY() < 500/pixelsPerCentimeter && enable_haptic){ //water
       
+      PVector myDist = myHeightMap.checkForCollisions(pos_ee, speed);
+      //println("speed "+speed);
+
+      f_ee.x = myDist.x * 300;//remember to make it negative as we did wth f_ee.set(-s.getVCforceX(), s.getVCforceY()); as this is what we'll do lower in the code
+      f_ee.y = myDist.y * 300;
+    }else if(s.getAvatarPositionY() < 500/pixelsPerCentimeter && enable_haptic){
+       PVector myDist = myHeightMap.checkForCollisionsDry(pos_ee, speed);
+      //println("speed "+speed);
+
+      f_ee.x = myDist.x * 300;//remember to make it negative as we did wth f_ee.set(-s.getVCforceX(), s.getVCforceY()); as this is what we'll do lower in the code
+      f_ee.y = myDist.y * 300;
+    }
+     if(fc % 10 == 0){
+      last_pos_ee.set(pos_ee.copy());
+    }
+    fc++;
+  
+     
+     
      forceArray1[0] = f_ee.x;
      forceArray1[1] = f_ee.y;
      torquesArray1 = widgetOne.set_device_torques(forceArray1);
@@ -303,23 +299,26 @@ class SimulationThread implements Runnable{
     rendering_force = false;
   }
 }
-
+void drawWater(){
+ fill(255, 255);
+  for(int i = 0; i< 100; i++){
+   ellipse(mouseX, mouseY, 10, 10);
+  }
+}
 /* end simulation section **********************************************************************************************/
 void keyPressed() {
+if (key == 'v'){//enter spell casting mode
+   println("pressed v");
+   enable_visual = !enable_visual;
 
-  if(keyCode == 32){//if spacebar pressed then shudder
-    println("pressed spacebar");
-    float originalPos = s.getAvatarPositionY()-2;
-    shudder.setPosition(s.getAvatarPositionX(), s.getAvatarPositionY()-1);
-    shudder.setStatic(false);
-
-    if(s.getAvatarPositionY() - originalPos > 3){
-      shudder.setPosition(0,0);
-      shudder.setStatic(true);
-    }
-  }else if (key == 's'){//enter spell casting mode
-    println("pressed s");
-
-  }
+ }
+ else if (key == 'a'){
+   println("pressed a");
+   enable_audio = !enable_audio;
+ }
+ else if (key == 'h'){
+   println("pressed h");
+   enable_haptic = !enable_haptic;
+ }
 
 }
