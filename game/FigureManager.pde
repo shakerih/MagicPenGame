@@ -1,6 +1,8 @@
 class FigureManager {
   
   int FIGURE_COUNT = 10;
+  int spelledObjectIndex = -1;
+  
   String[] images = {
      "images/gargoyle.png",
      "images/gargoyle2.png",
@@ -29,7 +31,7 @@ class FigureManager {
   
   FigureManager(FWorld world) {
     this.world = world;
-    timer = new Timer(5000);
+    timer = new Timer(15000);
     collection = new Figure[FIGURE_COUNT];
   }
   
@@ -40,19 +42,25 @@ class FigureManager {
      float y = random(2, 18);
      String img = images[int(random(images.length))];
      String name = names[int(random(names.length))];
-     boolean spell = int(random(10, 50)) > 25 ? true : false;
-     collection[i] = new Figure(name, img, x, y, spell);
+     collection[i] = new Figure(name, img, x, y, false);
      this.world.add(collection[i]);
     }
-    
+    int k = int(random(0, this.collection.length-1));
+    this.collection[k].spelled = true;
+    println(this.collection[k].figureName, " is spelled");
+    this.spelledObjectIndex = k;
+    this.switchSpells();
   }
   
    
    void switchSpells() {
      if (this.timer.isOff()) {
-       for (int i = 0; i < FIGURE_COUNT; i++) {
-           collection[i].setSpelled(int(random(1)) == 1 ? true : false);
-       }
+       print("Time is up! spell object changed");
+       this.collection[this.spelledObjectIndex].spelled = false;
+       int k = int(random(0, this.collection.length-1));
+       this.collection[k].spelled = true;
+       println(this.collection[k].figureName, " is spelled now");
+       this.spelledObjectIndex = k;
        this.timer.start();
      }
    }
@@ -66,6 +74,25 @@ class FigureManager {
       this.world.add(this.player);
      }
      return this.player;
+   }
+   
+   
+   Figure findNearestSpelledTarget(PVector position) {
      
+     float d;
+     for(int i = 0; i < this.collection.length; i++) {
+       
+       if (!this.collection[i].spelled) {
+         continue;
+       }
+       
+       Figure fig = this.collection[i];
+       d = dist(-position.x, position.y, fig.getX(), fig.getY());
+       if (d < 5) {
+         println(" this object is near, " + fig.figureName);
+         return fig;
+       }
+     }
+     return null;
    }
 }

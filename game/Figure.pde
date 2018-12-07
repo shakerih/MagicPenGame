@@ -10,7 +10,6 @@ class Figure extends FCircle {
  int colour;
  
  Figure(String name, String img, float x, float y, boolean spelled){
-   //super(3,2);
    super(3);
    this.figureName = name;
    this.img = loadImage(img);
