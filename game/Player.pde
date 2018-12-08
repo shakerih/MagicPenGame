@@ -1,6 +1,6 @@
 class Player extends Wizard{
   float cx, cy;
-  boolean freeze;
+  public boolean freeze, spellmode;
   int freezecounter;
 Player(String img, int x, int y){
   super(img, x, y);
@@ -17,12 +17,16 @@ Player(String img, int x, int y){
        freezecounter--;
      }
    }
+   if(spellmode){
+     image(img, cx-30,cy-50); 
+   }else{
    if(!freeze && freezecounter <= 0){ 
      cx = x;
      cy = y;
     image(img, x-30,y-50); 
    }else{
      image(img, cx-30,cy-50); 
+   }
    }
  }
  

@@ -1,6 +1,6 @@
 class FigureManager {
   
-  int FIGURE_COUNT = 10;
+  int FIGURE_COUNT = 0;
   int spelledObjectIndex = -1;
   
   String[] images = {
@@ -45,11 +45,13 @@ class FigureManager {
      collection[i] = new Figure(name, img, x, y, false);
      this.world.add(collection[i]);
     }
-    int k = int(random(0, this.collection.length-1));
-    this.collection[k].spelled = true;
-    println(this.collection[k].figureName, " is spelled");
-    this.spelledObjectIndex = k;
-    this.switchSpells();
+    if(FIGURE_COUNT != 0){
+      int k = int(random(0, this.collection.length-1));
+      this.collection[k].spelled = true;
+      println(this.collection[k].figureName, " is spelled");
+      this.spelledObjectIndex = k;
+      this.switchSpells();
+    }
   }
   
    
