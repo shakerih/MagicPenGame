@@ -168,7 +168,7 @@ void setup(){
    // for sounds
   minim = new Minim(this);
   waterAudio = minim.loadFile("sounds/water.wav");
-  rockAudio = minim.loadFile("sounds/scrapping.wav");
+  rockAudio = minim.loadFile("sounds/dirt.wav");
 }
 
 
@@ -200,36 +200,27 @@ void draw(){
 
   world.draw();
   if(enable_audio){
-  if (s.getAvatarPositionX() < 11.0 && s.getAvatarPositionY() < 500/pixelsPerCentimeter) {
+  if (s.getAvatarPositionX() < 11.0 && s.getAvatarPositionY() < 500/pixelsPerCentimeter && ( abs(speed.x) > 0 || abs(speed.y) >0)) {
 
-    waterAudio.play();
+    waterAudio.play();   
+    if (waterAudio.position() == waterAudio.length()) {
+    waterAudio.rewind();
+    }
     if (rockAudio.position() != 0) {
       rockAudio.rewind();
     }
-  } else if(s.getAvatarPositionY() < 500/pixelsPerCentimeter){
-    if (rockAudio.position() == rockAudio.length()) {
-      rockAudio.rewind();
-    }
-    if (inRockZone) {
-      if (currentPosX != s.getAvatarPositionX() || currentPosY != s.getAvatarPositionY()) {
-        rockAudio.play();
-        currentPosX = s.getAvatarPositionX();
-        currentPosY = s.getAvatarPositionY();
-      } else {
-        rockAudio.pause();
-      }
-      
-    } else {
-      currentPosX = s.getAvatarPositionX();
-      currentPosY = s.getAvatarPositionY();
-      inRockZone = true;
-    }
+  } else if(s.getAvatarPositionY() < 500/pixelsPerCentimeter && ( abs(speed.x) > 0 || abs(speed.y) >0)){
     
-    print(rockAudio.position());
-    if (waterAudio.position() == waterAudio.length()) {
+        rockAudio.play();
+     if (rockAudio.position() == rockAudio.length()) {
+       rockAudio.pause();
+    rockAudio.rewind();
+     }
+    if (waterAudio.position() != 0) {
       waterAudio.rewind();
     }
     println("in right half");
+  
   }
   }
 
