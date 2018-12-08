@@ -258,7 +258,7 @@ class SimulationThread implements Runnable {
     s.updateCouplingForce();
     f_ee.set(-s.getVCforceX(), s.getVCforceY());
 
-    waterDampingSystem.recordLastPosition(pos_ee.copy());
+  //  waterDampingSystem.recordLastPosition(pos_ee.copy());
     
     //always be running this to see if we are near the target
     Figure target = fManager.findNearestSpelledTarget(pos_ee); //returns null if not within 5 cm.
