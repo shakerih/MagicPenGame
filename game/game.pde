@@ -125,7 +125,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, "/dev/cu.usbmodem1411", 0);
+  haplyBoard          = new Board(this, "COM4", 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   widgetOne.add_analog_sensor("A0");
   widgetOne.add_analog_sensor("A1");
@@ -291,9 +291,17 @@ class SimulationThread implements Runnable{
     if(negative_feedback){
       PVector myDist = myHeightMap.checkForCollisions(1);
 
-      f_ee.x = myDist.x * 0;//remember to make it negative as we did wth f_ee.set(-s.getVCforceX(), s.getVCforceY()); as this is what we'll do lower in the code
-      f_ee.y = myDist.y * 100;
+      for(int i = 0; i<100; i++){
+        f_ee.x = myDist.x * 0;//remember to make it negative as we did wth f_ee.set(-s.getVCforceX(), s.getVCforceY()); as this is what we'll do lower in the code
+        f_ee.y = myDist.y * 100;
+        forceArray1[0] = f_ee.x;
+        forceArray1[1] = f_ee.y;
 
+        torquesArray1 = widgetOne.set_device_torques(forceArray1);
+        torques.set(torquesArray1[0], torquesArray1[1]);
+        widgetOne.device_write_torques();
+
+      }
 
       println("negative feedback happened");
       negative_feedback = false;
