@@ -313,7 +313,7 @@ class SimulationThread implements Runnable{
       
       for(int i = 0; i<100; i++){
         f_ee.x = myDist.x * 0;//remember to make it negative as we did wth f_ee.set(-s.getVCforceX(), s.getVCforceY()); as this is what we'll do lower in the code
-        f_ee.y = myDist.y * 25;
+        f_ee.y = myDist.y * 100;
         forceArray1[0] = f_ee.x;
         forceArray1[1] = f_ee.y;
 
@@ -323,9 +323,16 @@ class SimulationThread implements Runnable{
 
       }
 
+      forceArray1[0] = 0;
+        forceArray1[1] = 0;
+
+        torquesArray1 = widgetOne.set_device_torques(forceArray1);
+        torques.set(torquesArray1[0], torquesArray1[1]);
+        widgetOne.device_write_torques();
+      delay(100);
       for(int i = 0; i<100;i++){
         f_ee.x = myDist.x * 0;//remember to make it negative as we did wth f_ee.set(-s.getVCforceX(), s.getVCforceY()); as this is what we'll do lower in the code
-        f_ee.y = myDist.y * 25;
+        f_ee.y = myDist.y * 100;
         forceArray1[0] = f_ee.x;
         forceArray1[1] = f_ee.y;
 
@@ -333,10 +340,16 @@ class SimulationThread implements Runnable{
         torques.set(torquesArray1[0], torquesArray1[1]);
         widgetOne.device_write_torques();
       }
+      forceArray1[0] = 0;
+        forceArray1[1] = 0;
 
+        torquesArray1 = widgetOne.set_device_torques(forceArray1);
+        torques.set(torquesArray1[0], torquesArray1[1]);
+        widgetOne.device_write_torques();
+      delay(200);
       for(int i = 0; i<100; i++){
         f_ee.x = myDist.x * 0;//remember to make it negative as we did wth f_ee.set(-s.getVCforceX(), s.getVCforceY()); as this is what we'll do lower in the code
-        f_ee.y = myDist.y * 25;
+        f_ee.y = myDist.y * 100;
         forceArray1[0] = f_ee.x;
         forceArray1[1] = f_ee.y;
 
