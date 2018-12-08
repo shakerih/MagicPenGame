@@ -2,6 +2,7 @@ class FigureManager {
   
   int FIGURE_COUNT = 9; //hardocde this to 9, don't change!!!!
   int spelledObjectIndex = -1;
+  float x_offset = 6.25, y_offset = 5;
   
   String[] images = {
      "images/gargoyle.png",
@@ -37,8 +38,8 @@ class FigureManager {
   
   void init() {
     this.timer.start();
-    float x_offset = 6.25;
-    float y_offset = 5;
+    //float x_offset = 6.25;
+    //float y_offset = 5;
     int figure_counter = 0;
 
 
@@ -133,14 +134,12 @@ class FigureManager {
     figure_counter++;
 
 
-    
-
-
     int k = int(random(0, this.collection.length-1));
     this.collection[k].spelled = true;
-    println(this.collection[k].figureName, " is spelled");
+    println("The spelled object is :", this.collection[k].figureName);
+    println("position: (", int((this.collection[k].getY()/y_offset)-1), ",", int((this.collection[k].getX()/x_offset)-1), ")");
     this.spelledObjectIndex = k;
-    this.switchSpells();
+   //this.switchSpells();
   }
   
    
@@ -150,7 +149,7 @@ class FigureManager {
        this.collection[this.spelledObjectIndex].spelled = false;
        int k = int(random(0, this.collection.length-1));
        this.collection[k].spelled = true;
-       println(this.collection[k].figureName, " is spelled now");
+       println("The spelled object is :", this.collection[k].figureName, " at ", this.collection[k].getY()/y_offset, this.collection[k].getX()/x_offset);
        this.spelledObjectIndex = k;
        this.timer.start();
      }
@@ -180,7 +179,7 @@ class FigureManager {
        Figure fig = this.collection[i];
        d = dist(-position.x, position.y, fig.getX(), fig.getY());
        if (d < 5) {
-         println(" this object is near, " + fig.figureName);
+        // println(" this object is near, " + fig.figureName);
          return fig;
        }
      }

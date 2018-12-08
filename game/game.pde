@@ -206,7 +206,7 @@ void draw(){
   textSize(20);
   text("Move magic Pen to sense the magical object and press 's' to go to spell mode to cast a spell.", 500, height-40);
   
-  fManager.switchSpells();
+  //fManager.switchSpells();
   // npc.render();
   
   player.render(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter);
@@ -221,7 +221,7 @@ void draw(){
     mySpellRec.checkForCollisions(s.getAvatarPositionX()*pixelsPerCentimeter, s.getAvatarPositionY()*pixelsPerCentimeter, pixelsPerCentimeter/2);//call this to check if theyve hit differnt parts of the 9x9 grid
     String mystring = mySpellRec.checkIfSpellCast();//check if a spell has successfully been cast (they hit the corrext cicles on the grid)
     if(mystring != "none"){
-        println(mystring);
+        //println(mystring);
         //should move the avatar to the bottom left starting point
     }
   }
