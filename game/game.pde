@@ -337,6 +337,7 @@ class SimulationThread implements Runnable{
         widgetOne.device_write_torques();
       }
 
+      println("positive feedback happened");
       buzz = false;
 
     }
