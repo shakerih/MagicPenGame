@@ -15,7 +15,7 @@ private final ScheduledExecutorService scheduler      = Executors.newScheduledTh
 
 
 Minim minim;
-AudioPlayer waterAudio, rockAudio;
+AudioPlayer waterAudio, rockAudio, spelledAudio;
 
 
 /* device block definitions ********************************************************************************************/
@@ -71,10 +71,13 @@ float K = 8.99;
 //pat--> create new spell recognitction object
 SpellRecognition mySpellRec = new SpellRecognition(worldWidth, worldHeight, pixelsPerCentimeter);
 
+
 boolean inRockZone = false;
 float currentPosX;
 float currentPosY;
 PImage bg;
+
+Figure magicDisplayed;
 
 int fCount = 0;
 PVector last_pos_ee = new PVector(0, 0);
@@ -116,7 +119,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, "/dev/cu.usbmodem1411", 0);
+  haplyBoard          = new Board(this, "COM3", 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   widgetOne.add_analog_sensor("A0");
   widgetOne.add_analog_sensor("A1");
@@ -186,6 +189,7 @@ void setup(){
   minim = new Minim(this);
   waterAudio = minim.loadFile("sounds/water.wav");
   rockAudio = minim.loadFile("sounds/scrapping.wav");
+  spelledAudio = minim.loadFile("sounds/spelled.wav");
 }
 
 
@@ -224,8 +228,9 @@ void draw(){
 
 }
 
+
 /* simulation section **************************************************************************************************/
-class SimulationThread implements Runnable{
+class SimulationThread implements Runnable {
   
   float[] deviceAngles;
   float[] devicePositions;
@@ -256,8 +261,8 @@ class SimulationThread implements Runnable{
     waterDampingSystem.recordLastPosition(pos_ee.copy());
     
     //always be running this to see if we are near the target
-    Figure target = fManager.findNearestSpelledTarget(pos_ee);//returns null if not within 5 cm to 
-    
+    Figure target = fManager.findNearestSpelledTarget(pos_ee); //returns null if not within 5 cm.
+   
     //check if we are within 5 cm to a magic figure we return that figure
     if (target != null) {
 
@@ -267,12 +272,27 @@ class SimulationThread implements Runnable{
         f_ee.y = 60000/dist.y;
       }
       if (enable_audio){
-
+          if (spelledAudio.position() == spelledAudio.length()) {
+            spelledAudio.rewind();
+          }
+          spelledAudio.play();
+      } else {
+        spelledAudio.pause();
       }
       if (enable_visual){
-        
+        if (magicDisplayed != null && magicDisplayed != target) {
+          magicDisplayed.undoMagic();
+        }
+        target.displayMagic();
+        magicDisplayed = target;
       }
 
+    } else {
+      
+      if (magicDisplayed != null) {
+          magicDisplayed.undoMagic();
+        }
+      
     }
     
       //PVector dist = waterDampingSystem.checkForCollisions(pos_ee);
@@ -293,23 +313,23 @@ class SimulationThread implements Runnable{
 
 /* end simulation section **********************************************************************************************/
 void keyPressed() {
-
-
-  println(int(key));
   
   if (key == 'v'){
-    println(key);
-    enable_visual = true;
+    enable_visual = !enable_visual;
+    String state = enable_visual ? "on": "off";
+    println("visual modality is ", state);
 
   }
   else if (key == 'a'){
-    println(key);
-    enable_audio = true;
+    enable_audio = !enable_audio;
+    String state = enable_audio ? "on": "off";
+    println("audio modality is ", state);
     
   }
-  else if (key == 'd'){
-    println(key);
-    enable_haptic = true;
+  else if (key == 'h'){
+    enable_haptic = !enable_haptic;
+    String state = enable_haptic ? "on": "off";
+    println("haptic modality is ", state);
   }
 
 }

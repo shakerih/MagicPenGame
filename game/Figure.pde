@@ -58,6 +58,15 @@ class Figure extends FCircle {
       text("Actual figure revealed. It is a " + figureName + " object.", 500, height - 60);
     }
   }
-
+  
+  void displayMagic() {
+    PImage img2 = loadImage("images/npc.png");
+    img2.resize(70, 70);
+    this.attachImage(img2);
+  }
+  
+  void undoMagic() {
+    this.attachImage(this.img);
+  }
 
 }
